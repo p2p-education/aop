@@ -19,5 +19,6 @@ fib = outl . foldn ((0,1), g)
 h s = (foldn (1,s)) . (+1) 
 ack = foldn ((+1), h)
 
-zero x = 0
+zero x  = 0
+one  x  = 1
 
