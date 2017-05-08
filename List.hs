@@ -1,72 +1,60 @@
-module List {--(
-Listr(..),Listl(..),
-rev, conv,
-cons,nil,snoc,lin,
-foldr', foldl', listl, listr,
-sum', product',
-cat, concat',
-zero, one, length',
-classifier,
-filter', filter'',
-wrap,nilp,) --} where
-
+module List where
 import Int
 
 data Listr a = Nil | Cons (a, Listr a)  
 data Listl a = Lin | Snoc (Listl a, a)
 
-rev  Lin                  = Nil
-rev (Snoc(Lin,a))         = Cons(a, Nil)
-rev (Snoc(Snoc(x,b),a))   = Cons(a, rev(Snoc(x,b)))
+instance (Show a)=>Show(Listr a) where show l = "[" ++ showLr l ++ "]"
+showLr Nil = "[]"
+showLr (Cons(a, Nil)) = show a
+showLr (Cons(a, x))   = show a ++ ", " ++ showLr x
+instance (Show a)=>Show(Listl a) where show l = "[" ++ showLl l ++ "]"
+showLl Lin = "[]"
+showLl (Snoc(Lin,a)) = show a
+showLl (Snoc(x,a))   = showLl x ++ ", " ++ show a 
 
-conv Lin = Nil
-conv (Snoc(Lin,a))  = cons a Nil
-conv x              = _conv x Nil 
-_conv (Snoc(Lin,a)) = cons a 
-_conv (Snoc(x,a))   = \y -> _conv x (cons a y)
+nil = Nil;   cons a x = Cons(a,x)
+lin = Lin;   snoc a x = Snoc(x,a)
 
-conv' Nil = Lin
-conv' (Cons(a,Nil))  = snoc a Lin
-conv' x              = _conv' x Lin 
-_conv' (Cons(a,Nil)) = snoc a 
-_conv' (Cons(a,x))   = \y -> _conv' x (snoc a y)
+ll = snoc 1 (snoc 2 (snoc 3 (snoc 4 (snoc 5 (snoc 7 lin)))))
+lr = cons 1 (cons 2 (cons 3 (cons 4 (cons 5 (cons 7 nil)))))
 
-showLR Nil = "[]"
-showLR (Cons(a, Nil)) = show a
-showLR (Cons(a, x))   = show a ++ ", " ++ showLR x
-instance (Show a) => Show (Listr a) where show l = "[" ++ showLR l ++ "]"
+revl = foldl' cons nil 
+revr = foldr' snoc lin
 
-showLL Lin = "[]"
-showLL (Snoc(Lin,a)) = show a
-showLL (Snoc(x,a))   = showLL x ++ ", " ++ show a 
-instance (Show a) => Show (Listl a) where show l = "[" ++ showLL l ++ "]"
+convl  Lin          = Nil
+convl (Snoc(x,a))   = snocr (convl x) a 
+snocr  Nil        a = cons a nil
+snocr (Cons(a,x)) b = cons a (snocr x b)
 
-cons a x    = Cons(a,x)
-nil         = Nil
+convr  Nil          = Lin
+convr (Cons(a,x))   = consl a (convr x)
+consl a  Lin        = snoc a lin
+consl a (Snoc(x,b)) = snoc b (consl a x)
 
-snoc a x    = Snoc(x,a)
-lin         = Lin
-
--- foldr' (c,h) [a,..,z] = h a(h b(h c(...(h y(h z c))...)))
+-- foldr' h c [1,2,3,4] = h 1(h 2(h 3(h 4 c)))
+-- foldl' h c [1,2,3,4] = h(h(h(h c 4)3)2)1
 foldr' h c Nil          = c 
 foldr' h c (Cons (a,x)) = h a (foldr' h c x)  
 listr f = foldr' (cons . f) nil
 
--- foldl' (c,h) = h(h(h(...(h(h c z)y)...)c)b)a
 foldl' h c Lin         = c
 foldl' h c (Snoc(x,a)) = h a (foldl' h c x)
 listl f = foldl' (snoc . f) lin
 
+sumr     = foldr' (+) 0
+suml     = foldl' (+) 0
+productr = foldr' (*) 1
+productl = foldl' (*) 1
 
-sum'     = foldr' (+) 0
-product' = foldr' (*) 1
-cat x y  = conv (foldl' snoc (conv' x) (conv' y))
+cat x y  = 
+cat x y  = convl (foldl' snoc (convr x) (convr y))
 concat'  = foldr' cat nil
 one x    = 1
 length'  = sum' . listr one 
 
 
-classifier p f g = \a -> if p a then f a else g a 
+classifier p f g a = if p a then f a else g a 
 
 filter' p = concat' . listr (classifier p wrap nilp)
 wrap a = cons a nil
