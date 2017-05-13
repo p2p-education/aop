@@ -1,3 +1,6 @@
+module Tree where
+
+
 import List
 import Int
 
@@ -59,6 +62,23 @@ gtree2tree = foldg fork cons nil nil
 gsize  = foldg (const succ) (+) 0 0 
 gdepth = foldg (const succ) (max) 0 0   
 
+curryg :: GTree a -> BTree a
+curryg (Node(a,Lin)) = tip a 
+curryg (Node(a,x))   = bin (tip a) (branchg x)
+branchg (Snoc(Lin,x))= curryg x
+branchg (Snoc(xs,x)) = bin (branchg xs) (curryg x)
+
+uncurryg :: BTree a -> GTree a
+uncurryg (Tip a)    = node a lin
+uncurryg (Bin(Tip a,Tip b)) = node a (snoc (node b lin) lin) 
+uncurryg (Bin(x,Tip b)) = unbranch x (snoc (node b lin) lin)
+uncurryg (Bin(x,y)) = unbranch x (snoc (uncurryg y) lin)
+unbranch (Tip a) l = node a l
+unbranch (Bin(x,Tip a)) l = unbranch x (snoc (node a lin) l)
+unbranch (Bin(x,y)) l = unbranch x (snoc (uncurryg y) l)
+
+
+
 -- e.g.
 -- import Data.Char
 -- chrtree      = gtree (chr.fromInteger.(+96)) gt
@@ -86,9 +106,16 @@ instance Show a' => Show (Tree a')
 showTree str (Fork(a,x)) = "+- " ++ show a ++ "\n" ++ showForest str x
 showForest str Nil = ""
 showForest str (Cons(Fork(a,x),xs)) = str ++ "+- " ++ show a ++ "\n" ++
-                                      showForest (str ++ "|  ") x ++ showForest str xs 
-
+                                      showForest (str ++ "|  ") x ++ showForest str xs
 fork a x = Fork(a,x)
+foldt g h d c (Fork(a,Nil)) = g a d
+foldt g h d c (Fork(a,xs))  = g a (foldf g h d c xs)
+foldf g h d c  Nil          = c
+foldf g h d c (Cons(x,xs))  = h (foldt g h d c x) (foldf g h d c xs)
+
+
+
+
 
 -- e.g. 
 t = 

@@ -6,11 +6,11 @@ data Listl a = Lin | Snoc (Listl a, a)
 instance (Show a)=>Show(Listr a) where show l = "[" ++ showLr l ++ "]"
 showLr Nil = "[]"
 showLr (Cons(a, Nil)) = show a
-showLr (Cons(a, x))   = show a ++ ", " ++ showLr x
+showLr (Cons(a, x))   = show a ++ "," ++ showLr x
 instance (Show a)=>Show(Listl a) where show l = "[" ++ showLl l ++ "]"
 showLl Lin = "[]"
 showLl (Snoc(Lin,a)) = show a
-showLl (Snoc(x,a))   = showLl x ++ ", " ++ show a 
+showLl (Snoc(x,a))   = showLl x ++ "," ++ show a 
 
 nil = Nil;   cons a x = Cons(a,x)
 lin = Lin;   snoc a x = Snoc(x,a)
@@ -20,11 +20,13 @@ convl  Lin          = Nil
 convl (Snoc(x,a))   = _snocr (convl x) a 
 _snocr  Nil        a = cons a nil
 _snocr (Cons(a,x)) b = cons a (_snocr x b)
+snocr = flip _snocr
 revr = foldr' snoc lin
 convr  Nil          = Lin
 convr (Cons(a,x))   = _consl a (convr x)
 _consl a  Lin        = snoc a lin
 _consl a (Snoc(x,b)) = snoc b (_consl a x)
+consl = _consl
 
 foldr' h c Nil          = c 
 foldr' h c (Cons (a,x)) = h a (foldr' h c x)  
@@ -54,6 +56,27 @@ linp a = lin
 filterrr p = foldr' (\a x->if p a then cons a x else x) nil
 filterll p = foldl' (\a x->if p a then snoc a x else x) lin
 
+taker' 0 _ = Nil
+taker' n Nil = Nil
+taker' n (Cons(a,x)) = cons a (taker' (n-1) x) 
+
+dropr' 0 x = x
+dropr' n Nil = Nil
+dropr' n (Cons(a,x)) = dropr' (n-1) x
+
+taker n x = outr $ foldr' hh cc x 
+    where   cc        = (lengthr x-n,nil)
+            hh a(k,l) = (pred k,if k<1 then cons a l else nil) 
+dropr n x = outr $ foldr' hh cc x 
+    where   cc        = (lengthr x-n,nil)
+            hh a(k,l) = (pred k,if k<1 then l else cons a l)
+
+fromListr = foldr' (:) []
+fromListl = foldl' (:) []
+toListr []      = nil
+toListr (a:x)   = cons a (toListr x)
+toListl []      = lin
+toListl (a:x)   = consl a (toListl x)
 
 --  foldr' h c [1,2,3,4] = h 1(h 2(h 3(h 4 c)))
 --  foldl' h c [1,2,3,4] = h(h(h(h c 4)3)2)1

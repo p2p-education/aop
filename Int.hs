@@ -1,23 +1,23 @@
 module Int where 
 
-foldn (c,h) 0 = c
-foldn (c,h) n = h (foldn (c,h) (n-1))
+foldn h c 0 = c
+foldn h c n = h (foldn h c (n-1))
 
-plus m = foldn (m, succ)
-mult m = foldn (0, plus m)
-expn m = foldn (1, mult m)
+plus m = foldn  succ    m
+mult m = foldn (plus m) 0 
+expn m = foldn (mult m) 1
 
 outl(m,n) = m
 outr(m,n) = n
 
-f (m,n) = (m+1, n*(m+1))
-fact = outr . (foldn ((0,1), f))
+fact = outr.foldn f (0,1) 
+    where f(m,n) = (m+1, (m+1)*n)
 
-g (m,n) = (n, m+n)
-fib = outl . foldn ((0,1), g)
+fib = outl . foldn g (0,1)
+    where g (m,n) = (n, m+n)
 
-h s = (foldn (1,s)) . (+1) 
-ack = foldn ((+1), h)
+h s = foldn s 1 . succ
+ack = foldn h succ
 
 zero x  = 0
 one  x  = 1
