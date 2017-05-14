@@ -108,9 +108,10 @@ showForest str Nil = ""
 showForest str (Cons(Fork(a,x),xs)) = str ++ "+- " ++ show a ++ "\n" ++
                                       showForest (str ++ "|  ") x ++ showForest str xs
 fork a x = Fork(a,x)
+
 foldt g h d c (Fork(a,Nil)) = g a d
 foldt g h d c (Fork(a,xs))  = g a (foldf g h d c xs)
-foldf g h d c  Nil          = c
+-- foldf g h d c  Nil          = c
 foldf g h d c (Cons(x,xs))  = h (foldt g h d c x) (foldf g h d c xs)
 
 

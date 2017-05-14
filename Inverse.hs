@@ -21,3 +21,11 @@ f d n = 10*n + d
 
 
 
+zipr' = foldr' ccons nnil
+
+nnil    y = nil
+ccons a f = fa
+    where fa Nil = nil
+          fa (Cons(b,y)) = Cons((a,b),(f y)) 
+
+
