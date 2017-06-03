@@ -1,6 +1,6 @@
-import Int
-import List
-import Tree
+import Aop.Int
+import Aop.List
+import Aop.Tree
 
 
 
@@ -29,3 +29,15 @@ ccons a f = fa
           fa (Cons(b,y)) = Cons((a,b),(f y)) 
 
 
+wide (Node(a,Lin))  = snoc a lin
+wide (Node(a,x))    = snoc a (_wide x)
+_wide x = catl (top x) (rest x)
+top Lin = Lin
+top (Snoc(y,Node(a,x))) = snoc a (top y)
+rest Lin = Lin
+rest (Snoc(y,Node(a,x))) = catl (_wide x) (rest y)
+
+deep (Node(a,Lin))  = snoc a lin
+deep (Node(a,x))    = snoc a (_deep x)
+_deep Lin = Lin
+_deep (Snoc(y,b))   = catl (deep b) (_deep y)  

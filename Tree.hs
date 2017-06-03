@@ -51,6 +51,12 @@ bt = bin
 data GTree a' = Node (a', Listl (GTree a'))
 instance Show a' => Show (GTree a') where show t = show $ gtree2tree t
 
+-- instance Show a' => Show (GTree a') 
+--   where show t = showGTree "   " t
+-- showGTree str (Node(a,x)) = "+- " ++ show a ++ "\n" ++ showGForest str x
+-- showGForest str Lin = ""
+-- showGForest str (Snoc(xs,Node(a,x))) = str ++ "+- " ++ show a ++ "\n" ++
+--                                      showGForest (str ++ "|  ") x ++ showGForest str xs
 node a x = Node(a,x)
 
 foldg g h d c (Node(a,Lin))        = g a d 
