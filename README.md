@@ -25,8 +25,8 @@ start GHCi and load Codes.
 
 ~~~
 $ ghci     //  or  $ stack ghci
-Prelude> :l Tree.hs
-*Main> gt
+λ> :l Tree.hs
+λ> gt
 +- 1
    +- 6
    |  +- 7
@@ -37,4 +37,14 @@ Prelude> :l Tree.hs
    |  +- 8
    +- 4
    +- 3
+~~~
+
+
+## Traversing the Tree Structure
+
+~~~
+$ ghci
+λ> :l Inverse.hs
+λ> wide gt
+[10,2,8,9,7,3,4,5,6,1]
 ~~~
