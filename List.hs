@@ -5,34 +5,35 @@ data Listr a = Nil | Cons (a, Listr a)
 data Listl a = Lin | Snoc (Listl a, a)
 
 instance (Show a) => Show(Listr a) where show l = "[" ++ showLr l ++ "]"
-showLr Nil = "[]"
-showLr (Cons(a, Nil)) = show a
-showLr (Cons(a, x))   = show a ++ "," ++ showLr x
-instance (Show a)=>Show(Listl a) where show l = "[" ++ showLl l ++ "]"
-showLl Lin = "[]"
-showLl (Snoc(Lin,a)) = show a
-showLl (Snoc(x,a))   = showLl x ++ "," ++ show a 
+showLr Nil              = "[]"
+showLr (Cons(a, Nil))   = show a
+showLr (Cons(a, x))     = show a ++ "," ++ showLr x
+
+instance (Show a) => Show(Listl a) where show l = "[" ++ showLl l ++ "]"
+showLl Lin              = "[]"
+showLl (Snoc(Lin,a))    = show a
+showLl (Snoc(x,a))      = showLl x ++ "," ++ show a 
 
 nil = Nil;   cons a x = Cons(a,x)
 lin = Lin;   snoc a x = Snoc(x,a)
 
-revl = foldl' cons nil 
-convl  Lin          = Nil
-convl (Snoc(x,a))   = _snocr (convl x) a 
-_snocr  Nil        a = cons a nil
-_snocr (Cons(a,x)) b = cons a (_snocr x b)
-snocr = flip _snocr
-revr = foldr' snoc lin
-convr  Nil          = Lin
-convr (Cons(a,x))   = _consl a (convr x)
-_consl a  Lin        = snoc a lin
-_consl a (Snoc(x,b)) = snoc b (_consl a x)
-consl = _consl
+revl    = foldl' cons nil 
+convl  Lin              = Nil
+convl (Snoc(x,a))       = _snocr (convl x) a 
+_snocr  Nil        a    = cons a nil
+_snocr (Cons(a,x)) b    = cons a (_snocr x b)
+snocr   = flip _snocr
+revr    = foldr' snoc lin
+convr  Nil              = Lin
+convr (Cons(a,x))       = _consl a (convr x)
+_consl a  Lin           = snoc a lin
+_consl a (Snoc(x,b))    = snoc b (_consl a x)
+consl   = _consl
 
 foldr' h c Nil          = c 
 foldr' h c (Cons (a,x)) = h a (foldr' h c x)  
-foldl' h c Lin         = c
-foldl' h c (Snoc(x,a)) = h a (foldl' h c x)
+foldl' h c Lin          = c
+foldl' h c (Snoc(x,a))  = h a (foldl' h c x)
 listr f = foldr' (cons . f) nil
 listl f = foldl' (snoc . f) lin
 
