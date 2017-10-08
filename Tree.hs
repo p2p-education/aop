@@ -9,11 +9,23 @@ import Int
 --- BINARY TREE ---
 -------------------
 
-data BTree a' = Tip a' | Bin (BTree a', BTree a')
-instance Show a' => Show (BTree a') where show t = showBTree "" t 
-showBTree str (Tip x)     = " "  ++ show x ++ "\n"
-showBTree str (Bin (x,y)) = "+-" ++ showBTree (str ++ "| ") x ++ str ++ 
-                            "+-" ++ showBTree (str ++ "  ") y 
+data BTree a'      = Lf  | Br (a', BTree a', BTree a')
+instance Show a' => Show (BTree a') where show t = showRight "" t
+showLeft  str Lf          = ""
+showLeft  str (Br(a,l,r)) = str ++ "+- " ++ show a ++ "\n" ++ 
+                              showLeft (str ++ "|  ") l ++
+                              showRight (str ++ "|  ") r
+showRight  str Lf          = ""
+showRight  str (Br(a,l,r)) = str ++ "+- " ++ show a ++ "\n" ++ 
+                              showLeft (str ++ "   ") l ++
+                              showRight (str ++ "   ") r
+
+
+data Bree a' = Tip a' | Bin (Bree a', Bree a')
+instance Show a' => Show (Bree a') where show t = showBree "" t 
+showBree str (Tip x)     = " "  ++ show x ++ "\n"
+showBree str (Bin (x,y)) = "+-" ++ showBree (str ++ "| ") x ++ str ++ 
+                            "+-" ++ showBree (str ++ "  ") y 
 tip x   = Tip x
 bin x y = Bin(x,y)
 
@@ -68,13 +80,13 @@ gtree2tree = foldg fork cons nil nil
 gsize  = foldg (const succ) (+) 0 0 
 gdepth = foldg (const succ) (max) 0 0   
 
-curryg :: GTree a -> BTree a
+curryg :: GTree a -> Bree a
 curryg (Node(a,Lin)) = tip a 
 curryg (Node(a,x))   = bin (tip a) (branchg x)
 branchg (Snoc(Lin,x))= curryg x
 branchg (Snoc(xs,x)) = bin (branchg xs) (curryg x)
 
-uncurryg :: BTree a -> GTree a
+uncurryg :: Bree a -> GTree a
 uncurryg (Tip a)    = node a lin
 uncurryg (Bin(Tip a,Tip b)) = node a (snoc (node b lin) lin) 
 uncurryg (Bin(x,Tip b)) = unbranch x (snoc (node b lin) lin)
